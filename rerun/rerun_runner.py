@@ -44,7 +44,12 @@ def rerun():
                 print "repeat_count = ", (repeat_count)
             elif command == 'add':
                 print "add"
-                minions = client.cmd(target, fun_args[1], [fun_args[2]], ret='rerun')
+                try:
+                    repeat.next()
+                    minions = client.cmd(target, fun_args[1], [fun_args[2]], ret='rerun')
+                except StopIteration:
+                    print "limit exceeded"
+                    pass
         else:
             repeat_count += 1
             print 'repeat =', (repeat_count)
