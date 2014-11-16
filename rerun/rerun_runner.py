@@ -5,33 +5,55 @@ import salt.config
 __opts__ = {}
 event = salt.utils.event.MasterEvent('/var/run/salt/master')
 repeat_count = 0
+repeat = 0
+
 
 def rerun():
     global repeat_count
+    global repeat
     client = salt.client.LocalClient('/etc/salt/minion')
     for data in event.iter_events(tag='rerun', full=True):
     # for data in event.iter_events(tag=''):
-    #     print (data)
+        print 'data =', (data)
         target = data['data']['id']
-        # print target
+        print 'target', target
         fun = data['data']['data']['fun']
         # print fun
         fun_args = data['data']['data']['fun_args']
         # print fun_args
         if fun == 'test.arg':
-            if fun_args[0].lower() == 'abort':
+            command = fun_args[0].lower()
+            if command == 'abort':
                 print "\"abort\" received, now terminating runner..."
                 print "command repeated {0} times".format(repeat_count)
                 break
-            elif fun_args[0].lower() == 'stop':
+            elif command == 'load':
+                print "load..."
+                print 'fun_args =', fun_args
+            elif command == 'start':
+                print "start"
+            elif command == 'config':
+                print "config"
+                limit = fun_args[-1]['limit']
+                repeat = iter(xrange(1, limit))
+            elif command == 'stop':
                 print "stop"
-            elif fun_args[0].lower() == 'pause':
+            elif command == 'pause':
                 print "pause"
-            elif fun_args[0].lower() == 'stats':
+            elif command == 'stats':
                 print "repeat_count = ", (repeat_count)
+            elif command == 'add':
+                print "add"
+                minions = client.cmd(target, fun_args[1], [fun_args[2]], ret='rerun')
         else:
             repeat_count += 1
-            minions = client.cmd(target, fun, fun_args, ret='rerun')
+            print 'repeat =', (repeat_count)
+            try:
+                repeat.next()
+                minions = client.cmd(target, fun, fun_args, ret='rerun')
+            except StopIteration:
+                print "done."
+                pass
 
 print "starting..."
 rerun()
