@@ -1,11 +1,15 @@
 import salt.utils.event
 import salt.client
 import salt.config
+import ast
 
 __opts__ = {}
 event = salt.utils.event.MasterEvent('/var/run/salt/master')
 repeat_count = 0
-repeat = 0
+repeat = iter(xrange(1, 1))
+iterator = None
+template = None
+rerun_dict = {}
 
 
 def rerun():
@@ -21,11 +25,12 @@ def rerun():
         # print fun
         fun_args = data['data']['data']['fun_args']
         # print fun_args
+        RERUNIT = True
         if fun == 'test.arg':
+            RERUNIT = False
             command = fun_args[0].lower()
             if command == 'abort':
                 print "\"abort\" received, now terminating runner..."
-                print "command repeated {0} times".format(repeat_count)
                 break
             elif command == 'load':
                 print "load..."
@@ -35,29 +40,38 @@ def rerun():
             elif command == 'config':
                 print "config"
                 limit = fun_args[-1]['limit']
-                repeat = iter(xrange(1, limit))
+                repeat = iter(xrange(1, limit+1))
             elif command == 'stop':
                 print "stop"
             elif command == 'pause':
                 print "pause"
             elif command == 'stats':
                 print "repeat_count = ", (repeat_count)
-            elif command == 'add':
-                print "add"
-                try:
-                    repeat.next()
-                    minions = client.cmd(target, fun_args[1], [fun_args[2]], ret='rerun')
-                except StopIteration:
-                    print "limit exceeded"
-                    pass
-        else:
-            repeat_count += 1
-            print 'repeat =', (repeat_count)
+            elif command == 'iterator':
+                print 'iterator'
+                iterator = eval(fun_args[1])
+            elif command == 'template':
+                print 'template'
+                template = {}
+                template['fun'] = fun_args[1]
+                template['fun_args'] = fun_args[2]
+            elif command == 'run':
+                print "run"
+                RERUNIT = True
+
+        if RERUNIT:
             try:
-                repeat.next()
+                rerun_dict['next'] = str(repeat.next())
+                if template:
+                    stringit = template['fun_args'].format(**rerun_dict)
+                    fun_args = [ast.literal_eval(stringit)]
+                    fun = template['fun']
                 minions = client.cmd(target, fun, fun_args, ret='rerun')
+                repeat_count += 1
+                print 'repeat =', (repeat_count)
             except StopIteration:
                 print "done."
+                repeat_count = 0
                 pass
 
 print "starting..."
