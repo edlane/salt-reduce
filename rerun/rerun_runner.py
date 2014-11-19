@@ -3,18 +3,30 @@ import salt.client
 import salt.config
 import ast
 
+import mapit
+
 __opts__ = {}
 event = salt.utils.event.MasterEvent('/var/run/salt/master')
 repeat_count = 0
-repeat = iter(xrange(1, 1))
-iterator = None
 template = None
 rerun_dict = {}
 
 
+class mapper():
+
+    def partializer(self, limit):
+        return iter(xrange(0, limit))
+
+    def reducer(self, partial_results):
+        pass
+
+m = mapper()
+repeat = m.partializer(10)
+
 def rerun():
     global repeat_count
     global repeat
+    global template
     client = salt.client.LocalClient('/etc/salt/minion')
     for data in event.iter_events(tag='rerun', full=True):
     # for data in event.iter_events(tag=''):
@@ -25,9 +37,11 @@ def rerun():
         # print fun
         fun_args = data['data']['data']['fun_args']
         # print fun_args
-        RERUNIT = True
+        RERUN_IT = True
+        REDUCER_CALLBACK = True
         if fun == 'test.arg':
-            RERUNIT = False
+            RERUN_IT = False    # don't rerun control commands
+            REDUCER_CALLBACK = False    # don't callback results from control commands
             command = fun_args[0].lower()
             if command == 'abort':
                 print "\"abort\" received, now terminating runner..."
@@ -55,16 +69,22 @@ def rerun():
                 template = {}
                 template['fun'] = fun_args[1]
                 template['fun_args'] = fun_args[2]
-            elif command == 'run':
-                print "run"
-                RERUNIT = True
+            elif command == 'mapit':
+                print "mapit"
+                template = {}
+                template['fun'] = fun_args[1]
+                template['fun_args'] = fun_args[2]
+                RERUN_IT = True     # insert the initial "partializer" command to be run
 
-        if RERUNIT:
+        if RERUN_IT:
+            if REDUCER_CALLBACK:
+                # only callback the reducer if we got "real" results from a "partialize" command
+                m.reducer(data['data']['data']['return'])
             try:
                 rerun_dict['next'] = str(repeat.next())
                 if template:
                     stringit = template['fun_args'].format(**rerun_dict)
-                    fun_args = [ast.literal_eval(stringit)]
+                    fun_args = [ast.literal_eval("'" + stringit + "'")]
                     fun = template['fun']
                 minions = client.cmd(target, fun, fun_args, ret='rerun')
                 repeat_count += 1
