@@ -17,12 +17,33 @@ import salt.loader
 
 __proxyenabled__ = ['*']
 
-class testme():
+class mapper():
 
     sum = 0
     iterit = None
 
-    def iterateit(self):
+    class my_i():
+
+
+        def __init__(self, upper):
+            self.upper = upper
+            self.x = 0
+
+        def next(self):
+            ret = self.x
+            if ret > self.upper:
+                ret = self.upper-(ret-10)
+            if ret <= 0 and self.x > 0:
+                raise StopIteration
+
+            self.x += 10
+            return ret
+
+        def __iter__(self):
+            return self
+
+
+    def iterateit(self, upper):
         iterit = iter(xrange(0, 10, 2))
         return iterit
 
@@ -76,10 +97,10 @@ def sum_nums(upper):
         num += 1
         sum += num
     print "sum = " + str(sum)
-    return sum, time.time() - start
+    return sum
 
 
-def sum_nums_partial(lower, upper):
+def sum_nums_partial(lower, count):
     '''
     Return the sum of the sequence of numbers in the range [lower, upper], and the
     time it took to compute in seconds. Useful for validating the mapreduce runner
@@ -88,20 +109,18 @@ def sum_nums_partial(lower, upper):
 
     .. code-block:: bash
 
-        salt '*' mapreduce.sum_nums_partial 10 20
+        salt '*' mapit.sum_nums_partial 10 20
 
     '''
     lower = int(lower)
-    upper = int(upper)
-    start = time.time()
     num = lower
     sum = num
 
-    while num < upper:
+    for a in xrange(0, count):
         num += 1
         sum += num
 
-    return sum, time.time() - start
+    return sum
 
 
-
+print "starting mapit..."

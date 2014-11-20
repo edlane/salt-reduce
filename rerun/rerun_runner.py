@@ -3,7 +3,7 @@ import salt.client
 import salt.config
 import ast
 
-import mapit
+# import mapit
 
 __opts__ = {}
 event = salt.utils.event.MasterEvent('/var/run/salt/master')
@@ -74,7 +74,8 @@ def rerun():
                 template = {}
                 template['fun'] = fun_args[1]
                 template['fun_args'] = fun_args[2]
-                RERUN_IT = True     # insert the initial "partializer" command to be run
+                repeat = m.partializer(10)
+                RERUN_IT = True     # cause the initial "partializer" command to be run
 
         if RERUN_IT:
             if REDUCER_CALLBACK:
@@ -83,8 +84,9 @@ def rerun():
             try:
                 rerun_dict['next'] = str(repeat.next())
                 if template:
-                    stringit = template['fun_args'].format(**rerun_dict)
-                    fun_args = [ast.literal_eval("'" + stringit + "'")]
+                    # stringit = template['fun_args'].format(**rerun_dict)
+                    # fun_args = [ast.literal_eval(stringit )]
+                    fun_args = template['fun_args']
                     fun = template['fun']
                 minions = client.cmd(target, fun, fun_args, ret='rerun')
                 repeat_count += 1
