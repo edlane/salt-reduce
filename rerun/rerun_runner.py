@@ -3,6 +3,8 @@ import salt.client
 import salt.config
 import ast
 
+from string import Template
+
 # import mapit
 
 __opts__ = {}
@@ -29,17 +31,19 @@ def rerun():
     global template
     client = salt.client.LocalClient('/etc/salt/minion')
     for data in event.iter_events(tag='rerun', full=True):
-    # for data in event.iter_events(tag=''):
+        # this is the inner event loop...
+        #
         print 'data =', (data)
         target = data['data']['id']
-        print 'target', target
         fun = data['data']['data']['fun']
-        # print fun
         fun_args = data['data']['data']['fun_args']
-        # print fun_args
         RERUN_IT = True
         REDUCER_CALLBACK = True
         if fun == 'test.arg':
+            # Commands for controlling the mapper enter here...
+            # We repurposed the existing salt "test.arg <command> <args> <kwargs> --return=rerun" salt module for
+            # sending commands here
+            #
             RERUN_IT = False    # don't rerun control commands
             REDUCER_CALLBACK = False    # don't callback results from control commands
             command = fun_args[0].lower()
@@ -63,7 +67,7 @@ def rerun():
                 print "repeat_count = ", (repeat_count)
             elif command == 'iterator':
                 print 'iterator'
-                iterator = eval(fun_args[1])
+                repeat = eval(fun_args[1])
             elif command == 'template':
                 print 'template'
                 template = {}
@@ -73,8 +77,20 @@ def rerun():
                 print "mapit"
                 template = {}
                 template['fun'] = fun_args[1]
-                template['fun_args'] = fun_args[2]
-                repeat = m.partializer(10)
+                template['fun_args'] = Template(repr(fun_args[2:]))
+                    # ...create a template from the supplied arguments.
+                    # This supports a "$next" tag which will substitute results from the
+                    # iterator.next(). EG.
+                    #      >>> test.arg mapit test.echo "got here $next times..." _limit=10 --return=rerun
+                    # will cause the test.echo to be invoked with
+                    #       ... "got here 0 times..."
+                    #       ... "got here 1 times..." etc.
+
+                if len(fun_args) > 3:
+                    limit = fun_args[3]['_limit']
+                else:
+                    limit = 1
+                repeat = m.partializer(limit)
                 RERUN_IT = True     # cause the initial "partializer" command to be run
 
         if RERUN_IT:
@@ -82,11 +98,11 @@ def rerun():
                 # only callback the reducer if we got "real" results from a "partialize" command
                 m.reducer(data['data']['data']['return'])
             try:
-                rerun_dict['next'] = str(repeat.next())
                 if template:
-                    # stringit = template['fun_args'].format(**rerun_dict)
-                    # fun_args = [ast.literal_eval(stringit )]
-                    fun_args = template['fun_args']
+                    rerun_dict['next'] = str(repeat.next())
+                    rerun_dict['repeat'] = str(repeat_count)
+                    fun_arg_string = template['fun_args'].substitute(**rerun_dict)
+                    fun_args = ast.literal_eval(fun_arg_string )
                     fun = template['fun']
                 minions = client.cmd(target, fun, fun_args, ret='rerun')
                 repeat_count += 1
