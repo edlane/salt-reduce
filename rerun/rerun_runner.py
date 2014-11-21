@@ -4,8 +4,7 @@ import salt.config
 import ast
 
 from string import Template
-
-# import mapit
+from mapit import *
 
 __opts__ = {}
 event = salt.utils.event.MasterEvent('/var/run/salt/master')
@@ -14,16 +13,8 @@ template = None
 rerun_dict = {}
 
 
-class mapper():
-
-    def partializer(self, limit):
-        return iter(xrange(0, limit))
-
-    def reducer(self, partial_results):
-        pass
-
-m = mapper()
-repeat = m.partializer(10)
+m = my_mapper()
+repeat = m.partializer(100000)
 
 def rerun():
     global repeat_count
@@ -81,10 +72,10 @@ def rerun():
                     # ...create a template from the supplied arguments.
                     # This supports a "$next" tag which will substitute results from the
                     # iterator.next(). EG.
-                    #      >>> test.arg mapit test.echo "got here $next times..." _limit=10 --return=rerun
-                    # will cause the test.echo to be invoked with
-                    #       ... "got here 0 times..."
-                    #       ... "got here 1 times..." etc.
+                    #      >>> test.arg mapit test.echo "got here $repeat times..." _limit=10 --return=rerun
+                    # will cause the test.echo to be invoked as such:
+                    #       ... "got here 1 times..."
+                    #       ... "got here 2 times..." etc.
 
                 if len(fun_args) > 3:
                     limit = fun_args[3]['_limit']

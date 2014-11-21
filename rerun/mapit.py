@@ -14,16 +14,19 @@ import random
 import salt
 import salt.version
 import salt.loader
+from mapper import *
 
 __proxyenabled__ = ['*']
 
-class mapper():
+
+class my_mapper(mapper):
 
     sum = 0
+
     iterit = None
 
-    class my_i():
-
+    class partializer():
+        part_size = 1000
 
         def __init__(self, upper):
             self.upper = upper
@@ -32,11 +35,11 @@ class mapper():
         def next(self):
             ret = self.x
             if ret > self.upper:
-                ret = self.upper-(ret-10)
+                ret = self.upper - (ret - self.part_size)
             if ret <= 0 and self.x > 0:
                 raise StopIteration
 
-            self.x += 10
+            self.x += self.part_size
             return ret
 
         def __iter__(self):
@@ -47,7 +50,7 @@ class mapper():
         iterit = iter(xrange(0, 10, 2))
         return iterit
 
-    def reduceit(self, n):
+    def reducer(self, n):
         self.sum += n
         return self.sum
 
