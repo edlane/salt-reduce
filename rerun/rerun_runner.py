@@ -70,7 +70,7 @@ def rerun():
                 template['fun'] = fun_args[1]
                 template['fun_args'] = Template(repr(fun_args[2:]))
                     # ...create a template from the supplied arguments.
-                    # This supports a "$next" tag which will substitute results from the
+                    # This supports a "$next" and $repeat tag which will substitute results from the
                     # iterator.next(). EG.
                     #      >>> test.arg mapit test.echo "got here $repeat times..." _limit=10 --return=rerun
                     # will cause the test.echo to be invoked as such:
