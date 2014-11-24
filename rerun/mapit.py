@@ -14,41 +14,39 @@ import random
 import salt
 import salt.version
 import salt.loader
-from mapper import *
 
 __proxyenabled__ = ['*']
 
+try:
+    # ...a hack used to ignore this class when this is used as a salt
+    # execution module
+    #
+    from mapper import *
 
-class my_mapper(mapper):
+    class _mapper(mapper):
 
-    sum = 0
+        sum = 0
 
-    iterit = None
+        class partializer():
+            part_size = 1000
 
-    class partializer():
-        part_size = 1000
+            def __init__(self, upper):
+                self.upper = upper
+                self.x = 0
 
-        def __init__(self, upper):
-            self.upper = upper
-            self.x = 0
+            def next(self):
+                ret = self.x
+                if ret > self.upper:
+                    ret = self.upper - (ret - self.part_size)
+                if ret <= 0 and self.x > 0:
+                    raise StopIteration
 
-        def next(self):
-            ret = self.x
-            if ret > self.upper:
-                ret = self.upper - (ret - self.part_size)
-            if ret <= 0 and self.x > 0:
-                raise StopIteration
+                self.x += self.part_size
+                return [ret, self.part_size]
 
-            self.x += self.part_size
-            return ret
+            def __iter__(self):
+                return self
 
-        def __iter__(self):
-            return self
-
-
-    def iterateit(self, upper):
-        iterit = iter(xrange(0, 10, 2))
-        return iterit
 
     def reducer(self, n):
         self.sum += n
@@ -56,6 +54,12 @@ class my_mapper(mapper):
 
     def statit(self):
         print "sum = " + self.sum
+
+except:
+    pass
+
+def echo(*args):
+    return args
 
 
 def fib(num):
@@ -103,7 +107,7 @@ def sum_nums(upper):
     return sum
 
 
-def sum_nums_partial(lower, count):
+def partial_result(lower, count):
     '''
     Return the sum of the sequence of numbers in the range [lower, upper], and the
     time it took to compute in seconds. Useful for validating the mapreduce runner
@@ -115,15 +119,15 @@ def sum_nums_partial(lower, count):
         salt '*' mapit.sum_nums_partial 10 20
 
     '''
-    lower = int(lower)
-    num = lower
-    sum = num
+    # lower = int(lower)
+    # num = lower
+    # sum = num
+    #
+    # for a in xrange(0, count):
+    #     num += 1
+    #     sum += num
+    #
+    # return sum
+    return lower, count
 
-    for a in xrange(0, count):
-        num += 1
-        sum += num
 
-    return sum
-
-
-print "starting mapit..."
