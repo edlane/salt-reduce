@@ -22,9 +22,9 @@ def rerun():
         REDUCER_CALLBACK = True
         if fun == 'test.arg':
             # Interactive commands for controlling the mapper enter here...
-            # We repurposed the existing salt
+            # We repurposed the existing salt test.arg command
+            #
             # >>> salt "test.arg <command> <args> <kwargs> --return=rerun"
-            # salt module for sending commands here
             #
             RERUN_IT = False
                 # ...don't rerun control commands
