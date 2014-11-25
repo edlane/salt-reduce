@@ -44,8 +44,8 @@ try:
                 self.x += remain
                 return [ret, remain]
 
-            def __iter__(self):
-                return self
+            # def __iter__(self):
+            #     return self
 
 
         def reducer(self, n):
