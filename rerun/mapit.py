@@ -28,7 +28,7 @@ try:
         sum = 0
 
         class partializer():
-            part_size = 1000
+            part_size = 100000
 
             def __init__(self, upper):
                 self.upper = upper[0]
@@ -41,8 +41,6 @@ try:
                 remain = self.upper - ret
                 if remain >= self.part_size:
                     remain = self.part_size
-                # elif remain > 0:
-                #     pass
                 self.x += remain
                 return [ret, remain]
 
@@ -50,12 +48,12 @@ try:
                 return self
 
 
-    def reducer(self, n):
-        self.sum += n
-        return self.sum
+        def reducer(self, n):
+            self.sum += n
+            return self.sum
 
-    def statit(self):
-        print "sum = " + self.sum
+        def statit(self):
+            return self.sum
 
 except:
     pass
@@ -121,15 +119,28 @@ def partial_result(lower, count):
         salt '*' mapit.sum_nums_partial 10 20
 
     '''
-    # lower = int(lower)
-    # num = lower
-    # sum = num
-    #
-    # for a in xrange(0, count):
-    #     num += 1
-    #     sum += num
-    #
-    # return sum
-    return lower, count
+    lower = int(lower)
+    num = lower
+    sum = num
+
+    for a in xrange(0, count):
+        num += 1
+        sum += num
+
+    return sum
+
+def sleep20(x, y):
+    '''
+    Instruct the minion to initiate a process that will sleep for a given
+    period of time.
+
+    CLI Example:
+
+    .. code-block:: bash
+
+        salt '*' mapit.sleep20 1 2
+    '''
+    time.sleep(20)
+    return 20
 
 

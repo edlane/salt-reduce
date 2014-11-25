@@ -36,14 +36,16 @@ def rerun():
             elif command == 'reset':
                 print "\"reset\" received, now restarting..."
                 return True
-            elif command == 'start':
-                print "start"
+            elif command == 'run':
+                print "run"
+                RERUN_IT = True
             elif command == 'stop':
                 print "stop"
             elif command == 'pause':
                 print "pause"
             elif command == 'stats':
                 print "repeat_count = ", (repeat_count)
+                print "results = ", (m.statit())
             elif command == 'mapit':
                 print "mapit"
                 if not m:
@@ -60,8 +62,8 @@ def rerun():
                         # not a map-reduce style module, so use base mapper class
                         m = mapper(fun_args[1])
                         repeat = m.partializer(fun_args[2:])
-                RERUN_IT = True
-                # ...causes the initial "partializer" command to be run
+                # RERUN_IT = True
+                # # ...causes the initial "partializer" command to be run
 
         if REDUCER_CALLBACK:
             # only callback the reducer if we got "real" results from a salt
@@ -78,12 +80,11 @@ def rerun():
             try:
                 fun = m.module_name
                 fun_args = repeat.next()
-                minions = client.cmd(target, fun, fun_args, ret='rerun')
+                minions = client.cmd_async(target, fun, fun_args, ret='rerun')
                 repeat_count += 1
                 print 'repeat =', (repeat_count)
             except StopIteration:
                 print "done."
-                repeat_count = 0
                 pass
 
 print "starting..."
