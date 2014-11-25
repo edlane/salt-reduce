@@ -31,18 +31,20 @@ try:
             part_size = 1000
 
             def __init__(self, upper):
-                self.upper = upper
+                self.upper = upper[0]
                 self.x = 0
 
             def next(self):
                 ret = self.x
-                if ret > self.upper:
-                    ret = self.upper - (ret - self.part_size)
-                if ret <= 0 and self.x > 0:
+                if ret >= self.upper:
                     raise StopIteration
-
-                self.x += self.part_size
-                return [ret, self.part_size]
+                remain = self.upper - ret
+                if remain >= self.part_size:
+                    remain = self.part_size
+                # elif remain > 0:
+                #     pass
+                self.x += remain
+                return [ret, remain]
 
             def __iter__(self):
                 return self
