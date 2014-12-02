@@ -2,12 +2,19 @@ import salt.utils.event
 import salt.client
 import salt.config
 
-from mapper import mapper
+# from mapper import mapper
+
+import sys
+sys.path.append('/srv/salt/_runners')
+sys.path.append('/srv/salt/_modules')
+
+from mylib.mapper import mapper
 
 __opts__ = {}
 event = salt.utils.event.MasterEvent('/var/run/salt/master')
 
 def rerun():
+    inflight = {}   # a dictionary for jobs which have not responded with results
     repeat_count = 0
     m = None
     client = salt.client.LocalClient('/etc/salt/minion')
@@ -70,26 +77,39 @@ def rerun():
         if REDUCER_CALLBACK:
             # only callback the reducer if we got "real" results from a salt
             # execution module
-            m.reducer(data['data']['data']['return'])
-            try:
-                mod
-            except:
-                RERUN_IT = False
-                # This is NOT a MR enabled salt execution module so don't rerun it
+            if inflight[data['data']['data']['jid']]:
+                # TODO: This should not happen. Investigate why and prevent it
+                m.reducer(data['data']['data']['return'])
+                inflight.pop(data['data']['data']['jid'])
+                try:
+                    mod
+                except:
+                    RERUN_IT = False
+                    # This is NOT a MR enabled salt execution module so don't rerun it
+            else:
+                RERUN_IT = False    # ...ignore this spurious event
 
 
         if RERUN_IT:
             try:
-                fun = m.module_name
-                fun_args = repeat.next()
-                minions = client.cmd_async(target, fun, fun_args, ret='rerun')
+                my_fun = m.module_name
+                my_fun_args = repeat.next()
+                print "my_fun_args = ", (my_fun_args)
+                minions = client.cmd_async(target, my_fun, my_fun_args, ret='rerun')
+                inflight[minions] = True
+                print "got here, sending...", (my_fun), (my_fun_args), (minions)
                 repeat_count += 1
                 print 'repeat =', (repeat_count)
             except StopIteration:
                 print "done."
-                pass
+                if len(inflight) == 0:
+                    print "all results in, ok to terminate"
+                    exit ([m.statit()])
+
 
 print "starting..."
+import sys
+print sys.path
 while rerun():
     pass
 

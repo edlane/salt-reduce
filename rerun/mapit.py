@@ -18,10 +18,12 @@ import salt.loader
 __proxyenabled__ = ['*']
 
 try:
-    # ...a hack used to ignore this class when this is used as a salt
+    # ...a hack used to ignore this class when used as a salt
     # execution module
+    # TODO: implement this using decorator:
+    # http://docs.saltstack.com/en/latest/ref/modules/#useful-decorators-for-modules
     #
-    from mapper import *
+    from mylib.mapper import *
 
     class _mapper(mapper):
 
@@ -44,9 +46,6 @@ try:
                 self.x += remain
                 return [ret, remain]
 
-            # def __iter__(self):
-            #     return self
-
 
         def reducer(self, n):
             self.sum += n
@@ -58,8 +57,10 @@ try:
 except:
     pass
 
+
 def echo(*args):
-    return args
+    # return args
+    return 5000
 
 
 def fib(num):
@@ -123,13 +124,13 @@ def partial_result(lower, count):
     num = lower
     sum = num
 
-    for a in xrange(0, count):
+    for a in xrange(0, count-1):
         num += 1
         sum += num
 
     return sum
 
-def sleep20(x, y):
+def sleep20(*args):
     '''
     Instruct the minion to initiate a process that will sleep for a given
     period of time.
