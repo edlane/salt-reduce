@@ -8,7 +8,7 @@ import sys
 sys.path.append('/srv/salt/_runners')
 sys.path.append('/srv/salt/_modules')
 
-from mylib.mapper import mapper
+from lib.mapper import mapper
 
 __opts__ = {}
 event = salt.utils.event.MasterEvent('/var/run/salt/master')
@@ -106,10 +106,8 @@ def rerun():
                     print "all results in, ok to terminate"
                     exit ([m.statit()])
 
-
-print "starting..."
-import sys
-print sys.path
-while rerun():
-    pass
+def run():
+    print "starting..."
+    while rerun():
+        pass
 
