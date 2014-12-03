@@ -23,7 +23,7 @@ try:
     # TODO: implement this using decorator:
     # http://docs.saltstack.com/en/latest/ref/modules/#useful-decorators-for-modules
     #
-    from mylib.mapper import *
+    from lib.mapper import *
 
     class _mapper(mapper):
 
