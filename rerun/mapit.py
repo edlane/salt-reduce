@@ -15,7 +15,7 @@ import salt
 import salt.version
 import salt.loader
 
-__proxyenabled__ = ['*']
+# __proxyenabled__ = ['*']
 
 try:
     # ...a hack used to ignore this class when used as a salt
