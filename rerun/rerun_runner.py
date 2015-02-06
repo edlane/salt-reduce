@@ -14,7 +14,7 @@ __opts__ = {}
 event = salt.utils.event.MasterEvent('/var/run/salt/master')
 
 def rerun():
-    inflight = {}   # a dictionary for jobs which have not responded with results
+    inflight = {}   # a dictionary for jobs with pending returned results
     repeat_count = 0
     m = None
     client = salt.client.LocalClient('/etc/salt/minion')
@@ -97,17 +97,19 @@ def rerun():
                 print "my_fun_args = ", (my_fun_args)
                 minions = client.cmd_async(target, my_fun, my_fun_args, ret='rerun')
                 inflight[minions] = True
-                print "got here, sending...", (my_fun), (my_fun_args), (minions)
+                print "sending...", (my_fun), (my_fun_args), (minions)
                 repeat_count += 1
                 print 'repeat =', (repeat_count)
             except StopIteration:
                 print "done."
                 if len(inflight) == 0:
-                    print "all results in, ok to terminate"
-                    exit ([m.statit()])
+                    # all the results in, ok to terminate
+                    exit([m.statit()])
 
 def run():
     print "starting..."
     while rerun():
         pass
 
+if __name__ == '__main__':
+    run()

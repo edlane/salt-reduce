@@ -1,7 +1,8 @@
 #!/bin/bash -v
 
-cd ~lane/dev/salt-reduce/rerun
+cd ~/dev/salt-reduce/rerun
 mkdir -p /srv/salt/_runners/lib
+touch /srv/salt/_runners/lib/__init__.py
 mkdir -p /srv/salt/_returners/
 mkdir -p /srv/salt/_modules/
 
