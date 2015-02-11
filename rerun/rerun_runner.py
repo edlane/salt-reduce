@@ -21,7 +21,7 @@ def rerun():
     for data in event.iter_events(tag='rerun', full=True):
         # this is the inner event loop...
         #
-        print 'data =', (data)
+        print >> sys.stderr, 'data =', (data)
         target = data['data']['id']
         fun = data['data']['data']['fun']
         fun_args = data['data']['data']['fun_args']
@@ -40,23 +40,23 @@ def rerun():
             REDUCER_CALLBACK = False    # don't callback results from control commands
             command = fun_args[0].lower()
             if command == 'abort':
-                print "\"abort\" received, now terminating runner..."
+                print >> sys.stderr, "\"abort\" received, now terminating runner..."
                 return False
             elif command == 'reset':
-                print "\"reset\" received, now restarting..."
+                print >> sys.stderr, "\"reset\" received, now restarting..."
                 return True
             elif command == 'run':
-                print "run"
+                print >> sys.stderr, "run"
                 RERUN_IT = True
             elif command == 'stop':
-                print "stop"
+                print >> sys.stderr, "stop"
             elif command == 'pause':
-                print "pause"
+                print >> sys.stderr, "pause"
             elif command == 'stats':
-                print "repeat_count = ", (repeat_count)
-                print "results = ", (m.statit())
+                print >> sys.stderr, "repeat_count = ", (repeat_count)
+                print >> sys.stderr, "results = ", (m.statit())
             elif command == 'mapit':
-                print "mapit"
+                print >> sys.stderr, "mapit"
                 if not m:
                     # run this only once...
                     try:
@@ -94,20 +94,20 @@ def rerun():
             try:
                 my_fun = m.module_name
                 my_fun_args = repeat.next()
-                print "my_fun_args = ", (my_fun_args)
+                print >> sys.stderr, "my_fun_args = ", (my_fun_args)
                 minions = client.cmd_async(target, my_fun, my_fun_args, ret='rerun')
                 inflight[minions] = True
-                print "sending...", (my_fun), (my_fun_args), (minions)
+                print >> sys.stderr, "sending...", (my_fun), (my_fun_args), (minions)
                 repeat_count += 1
-                print 'repeat =', (repeat_count)
+                print >> sys.stderr, 'repeat =', (repeat_count)
             except StopIteration:
-                print "done."
+                print >> sys.stderr, "done."
                 if len(inflight) == 0:
                     # all the results in, ok to terminate
                     exit([m.statit()])
 
 def run():
-    print "starting..."
+    print >> sys.stderr, "starting..."
     while rerun():
         pass
 
