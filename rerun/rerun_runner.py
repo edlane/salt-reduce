@@ -1,6 +1,7 @@
 import salt.utils.event
 import salt.client
 import salt.config
+import logging
 
 # from mapper import mapper
 
@@ -12,6 +13,8 @@ from lib.mapper import mapper
 
 __opts__ = {}
 event = salt.utils.event.MasterEvent('/var/run/salt/master')
+log = logging.getLogger(__name__)
+verbose = False
 
 def rerun():
     inflight = {}   # a dictionary for jobs with pending returned results
@@ -21,7 +24,7 @@ def rerun():
     for data in event.iter_events(tag='rerun', full=True):
         # this is the inner event loop...
         #
-        print >> sys.stderr, 'data =', (data)
+        if verbose: print >> sys.stderr, 'data =', (data)
         target = data['data']['id']
         fun = data['data']['data']['fun']
         fun_args = data['data']['data']['fun_args']
@@ -40,23 +43,23 @@ def rerun():
             REDUCER_CALLBACK = False    # don't callback results from control commands
             command = fun_args[0].lower()
             if command == 'abort':
-                print >> sys.stderr, "\"abort\" received, now terminating runner..."
+                if verbose: print >> sys.stderr, "\"abort\" received, now terminating runner..."
                 return False
             elif command == 'reset':
-                print >> sys.stderr, "\"reset\" received, now restarting..."
+                if verbose: print >> sys.stderr, "\"reset\" received, now restarting..."
                 return True
             elif command == 'run':
-                print >> sys.stderr, "run"
+                if verbose: print >> sys.stderr, "run"
                 RERUN_IT = True
             elif command == 'stop':
-                print >> sys.stderr, "stop"
+                if verbose: print >> sys.stderr, "stop", "not implemented"
             elif command == 'pause':
-                print >> sys.stderr, "pause"
+                if verbose: print >> sys.stderr, "pause", "not implemented"
             elif command == 'stats':
                 print >> sys.stderr, "repeat_count = ", (repeat_count)
                 print >> sys.stderr, "results = ", (m.statit())
             elif command == 'mapit':
-                print >> sys.stderr, "mapit"
+                if verbose: print >> sys.stderr, "mapit"
                 if not m:
                     # run this only once...
                     try:
@@ -94,20 +97,24 @@ def rerun():
             try:
                 my_fun = m.module_name
                 my_fun_args = repeat.next()
-                print >> sys.stderr, "my_fun_args = ", (my_fun_args)
+                if verbose: print >> sys.stderr, "my_fun_args = ", (my_fun_args)
                 minions = client.cmd_async(target, my_fun, my_fun_args, ret='rerun')
                 inflight[minions] = True
-                print >> sys.stderr, "sending...", (my_fun), (my_fun_args), (minions)
+                if verbose: print >> sys.stderr, "sending...", (my_fun), (my_fun_args), (minions)
                 repeat_count += 1
-                print >> sys.stderr, 'repeat =', (repeat_count)
+                if verbose: print >> sys.stderr, 'repeat =', (repeat_count)
             except StopIteration:
                 print >> sys.stderr, "done."
                 if len(inflight) == 0:
                     # all the results in, ok to terminate
                     exit([m.statit()])
 
-def run():
-    print >> sys.stderr, "starting..."
+def run(*args, **kwargs):
+    global verbose
+    if kwargs['verbose'] == True:
+        verbose = True
+
+    if verbose: print >> sys.stderr, "starting..."
     while rerun():
         pass
 
