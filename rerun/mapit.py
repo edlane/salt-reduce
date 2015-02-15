@@ -28,6 +28,11 @@ try:
     class _mapper(mapper):
 
         sum = 0
+        def __init__(self, module_name=None):
+            if module_name == 'mapit.map':
+                # redirect "map" method to "partial_result"
+                self.module_name = 'mapit.partial_result'
+            # self.module_name = module_name
 
         class partializer():
             part_size = 100000

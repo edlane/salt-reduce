@@ -111,12 +111,14 @@ def rerun():
 
 def run(*args, **kwargs):
     global verbose
-    if kwargs['verbose'] == True:
-        verbose = True
+    if 'verbose' in kwargs:
+        verbose = kwargs['verbose']
 
     if verbose: print >> sys.stderr, "starting..."
     while rerun():
         pass
 
+
 if __name__ == '__main__':
-    run()
+    exec (''.join(['run'] + sys.argv[1:]))
+    # run()
