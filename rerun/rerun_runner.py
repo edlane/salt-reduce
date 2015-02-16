@@ -50,6 +50,10 @@ def rerun():
                 return True
             elif command == 'run':
                 if verbose: print >> sys.stderr, "run"
+                try:
+                    run_done
+                except NameError:
+                    run_done = fun_args[1]
                 RERUN_IT = True
             elif command == 'stop':
                 if verbose: print >> sys.stderr, "stop", "not implemented"
@@ -95,6 +99,11 @@ def rerun():
 
         if RERUN_IT:
             try:
+                try:
+                    if run_done <= repeat_count:
+                        raise StopIteration
+                except NameError:
+                    pass
                 my_fun = m.module_name
                 my_fun_args = repeat.next()
                 if verbose: print >> sys.stderr, "my_fun_args = ", (my_fun_args)
@@ -103,8 +112,15 @@ def rerun():
                 if verbose: print >> sys.stderr, "sending...", (my_fun), (my_fun_args), (minions)
                 repeat_count += 1
                 if verbose: print >> sys.stderr, 'repeat =', (repeat_count)
+
             except StopIteration:
                 print >> sys.stderr, "done."
+                try:
+                    run_done
+                    exit([repeat_count])
+                except NameError:
+                    pass
+
                 if len(inflight) == 0:
                     # all the results in, ok to terminate
                     exit([m.statit()])
