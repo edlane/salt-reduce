@@ -38,7 +38,7 @@ try:
             part_size = 100000
 
             def __init__(self, upper):
-                self.upper = upper[0]
+                self.upper = int(upper[0]) # need to cast this to int because "salt-call" does not
                 self.x = 0
 
             def next(self):

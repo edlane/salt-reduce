@@ -51,9 +51,9 @@ def rerun():
             elif command == 'run':
                 if verbose: print >> sys.stderr, "run"
                 try:
-                    run_done
-                except NameError:
                     run_done = fun_args[1]
+                except IndexError:
+                    pass # no count passed to run command, ignore it
                 RERUN_IT = True
             elif command == 'stop':
                 if verbose: print >> sys.stderr, "stop", "not implemented"
@@ -115,11 +115,11 @@ def rerun():
 
             except StopIteration:
                 print >> sys.stderr, "done."
-                try:
-                    run_done
-                    exit([repeat_count])
-                except NameError:
-                    pass
+                # try:
+                #     run_done
+                #     exit([repeat_count])
+                # except NameError:
+                #     pass
 
                 if len(inflight) == 0:
                     # all the results in, ok to terminate
