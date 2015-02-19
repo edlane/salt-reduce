@@ -4,6 +4,7 @@ import itertools
 
 
 class mapper:
+    sum = 0
 
     def __init__(self, module_name=None):
         self.module_name = module_name
@@ -15,5 +16,8 @@ class mapper:
         return itertools.repeat(fun_args)
 
     def reducer(self, partial_results):
-        pass
+        self.sum += 1
+        return self.sum
 
+    def statit(self):
+        return self.sum

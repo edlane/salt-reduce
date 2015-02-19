@@ -17,7 +17,7 @@ lane@ubuntu:~$ salt-run rerun_runner.py
 
 4. prime the runner: ( run only once! )
 
-lane@ubuntu:~$ salt \* test.arg mapit mapit.partial_result 1000000000 --return=rerun
+lane@ubuntu:~$ salt \* test.arg mapit adder.add 1000000 --return=rerun
 
 
 5. run "mapit.partial" on all the targeted minions (in this example, "\*")

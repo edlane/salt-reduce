@@ -100,6 +100,7 @@ def rerun():
         if RERUN_IT:
             try:
                 try:
+                    # use "run_done" to stop all subsequent salt module calls
                     if run_done <= repeat_count:
                         raise StopIteration
                 except NameError:
@@ -115,12 +116,6 @@ def rerun():
 
             except StopIteration:
                 print >> sys.stderr, "done."
-                # try:
-                #     run_done
-                #     exit([repeat_count])
-                # except NameError:
-                #     pass
-
                 if len(inflight) == 0:
                     # all the results in, ok to terminate
                     exit([m.statit()])
