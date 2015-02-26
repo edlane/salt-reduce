@@ -13,18 +13,12 @@ read
 salt \* test.arg run 20 --return=rerun
 read
 salt \* test.arg run --return=rerun
-read
 salt \* test.arg run --return=rerun
-read
 salt \* test.arg run --return=rerun
-read
 salt \* test.arg run --return=rerun
-read
 salt \* test.arg run --return=rerun
-read
 salt \* test.arg run --return=rerun
-read
 salt \* test.arg run --return=rerun
-read
+salt \* test.arg run --return=rerun
 salt \* test.arg run --return=rerun
 
