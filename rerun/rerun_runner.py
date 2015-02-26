@@ -10,6 +10,8 @@ sys.path.append('/srv/salt/_runners')
 sys.path.append('/srv/salt/_modules')
 
 from lib.mapper import mapper
+from resource import getrusage as resource_usage, RUSAGE_SELF
+from time import time as timestamp
 
 __opts__ = {}
 event = salt.utils.event.MasterEvent('/var/run/salt/master')
@@ -55,6 +57,8 @@ def rerun():
                 except IndexError:
                     pass # no count passed to run command, ignore it
                 RERUN_IT = True
+                # start timers
+                start_time, start_resources = timestamp(), resource_usage(RUSAGE_SELF)
             elif command == 'stop':
                 if verbose: print >> sys.stderr, "stop", "not implemented"
             elif command == 'pause':
@@ -118,7 +122,11 @@ def rerun():
                 print >> sys.stderr, "done."
                 if len(inflight) == 0:
                     # all the results in, ok to terminate
-                    exit([m.statit()])
+                    end_resources, end_time = resource_usage(RUSAGE_SELF), timestamp()
+                    runner_stats = {'real': end_time - start_time,
+                                    'sys': end_resources.ru_stime - start_resources.ru_stime,
+                                    'user': end_resources.ru_utime - start_resources.ru_utime}
+                    exit({'result': m.statit(), 'runner stats': runner_stats})
 
 def run(*args, **kwargs):
     global verbose

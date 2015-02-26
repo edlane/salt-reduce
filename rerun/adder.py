@@ -17,6 +17,9 @@ import salt.loader
 
 # __proxyenabled__ = ['*']
 
+from resource import getrusage as resource_usage, RUSAGE_SELF
+from time import time as timestamp
+
 try:
     # ...a hack used to ignore this class when used as a salt
     # execution module
@@ -28,6 +31,7 @@ try:
     class _mapper(mapper):
 
         sum = 0
+        times = {}
 
         def __init__(self, module_name=None):
             if module_name == 'adder.add':
@@ -36,7 +40,7 @@ try:
             # self.module_name = module_name
 
         class partializer():
-            part_size = 100000
+            part_size = 10000000
 
             def __init__(self, upper):
                 self.upper = int(upper[0]) # need to cast this to int because "salt-call" does not
@@ -53,40 +57,21 @@ try:
                 return [ret, remainder]
 
         def reducer(self, n):
-            self.sum += n
+            self.sum += n[0]
+            for k, v in n[1].iteritems():
+                try:
+                    self.times[k] += v
+                except KeyError:
+                    self.times[k] = 0
+
             return self.sum
 
         def statit(self):
-            return self.sum
+            return self.sum, self.times
 
 except:
     pass
 
-
-def echo(*args):
-    # return args
-    return 5000
-
-
-def fib(num):
-    '''
-    Return a Fibonacci sequence up to the passed number, and the
-    timeit took to compute in seconds. Used for performance tests
-
-    CLI Example:
-
-    .. code-block:: bash
-
-        salt '*' test.fib 3
-    '''
-    num = int(num)
-    start = time.time()
-    fib_a, fib_b = 0, 1
-    ret = [0]
-    while fib_b < num:
-        ret.append(fib_b)
-        fib_a, fib_b = fib_b, fib_a + fib_b
-    return ret, time.time() - start
 
 
 def sum_nums(upper):
@@ -101,6 +86,7 @@ def sum_nums(upper):
         salt '*' mapit.sum_nums 10
 
     '''
+
     upper = int(upper)
     start = time.time()
     num = 0
@@ -125,6 +111,7 @@ def partial_result(lower, count):
         salt '*' mapit.sum_nums_partial 10 20
 
     '''
+    start_time, start_resources = timestamp(), resource_usage(RUSAGE_SELF)
     lower = int(lower)
     num = lower
     sum = num
@@ -133,7 +120,11 @@ def partial_result(lower, count):
         num += 1
         sum += num
 
-    return sum
+    end_resources, end_time = resource_usage(RUSAGE_SELF), timestamp()
+
+    return sum, {'real': end_time - start_time,
+                 'sys': end_resources.ru_stime - start_resources.ru_stime,
+                 'user': end_resources.ru_utime - start_resources.ru_utime}
 
 def sleep20(*args):
     '''
