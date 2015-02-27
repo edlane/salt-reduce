@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 verbose = False
 
 def rerun():
+    timeit = False
     inflight = {}   # a dictionary for jobs with pending returned results
     repeat_count = 0
     m = None
@@ -56,9 +57,12 @@ def rerun():
                     run_done = fun_args[1]
                 except IndexError:
                     pass # no count passed to run command, ignore it
-                RERUN_IT = True
                 # start timers
-                start_time, start_resources = timestamp(), resource_usage(RUSAGE_SELF)
+                if not timeit:
+                    # set start timers this one time
+                    timeit = True
+                    start_time, start_resources = timestamp(), resource_usage(RUSAGE_SELF)
+                RERUN_IT = True
             elif command == 'stop':
                 if verbose: print >> sys.stderr, "stop", "not implemented"
             elif command == 'pause':
