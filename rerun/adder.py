@@ -126,18 +126,5 @@ def partial_result(lower, count):
                  'sys': end_resources.ru_stime - start_resources.ru_stime,
                  'user': end_resources.ru_utime - start_resources.ru_utime}
 
-def sleep20(*args):
-    '''
-    Instruct the minion to initiate a process that will sleep for a given
-    period of time.
-
-    CLI Example:
-
-    .. code-block:: bash
-
-        salt '*' mapit.sleep20 1 2
-    '''
-    time.sleep(20)
-    return 20
 
 
