@@ -101,8 +101,8 @@ def sum_nums(upper):
 
 def partial_result(lower, count):
     '''
-    Return the sum of the sequence of numbers in the range [lower, upper], and the
-    time it took to compute in seconds. Useful for validating the mapreduce runner
+    Return the sum of the sequence of numbers in the range [lower, lower+count], and the
+    time it took to compute in seconds.
 
     CLI Example:
 
@@ -113,12 +113,6 @@ def partial_result(lower, count):
     '''
     start_time, start_resources = timestamp(), resource_usage(RUSAGE_SELF)
     lower = int(lower)
-    # num = lower
-    # sum = num
-    #
-    # for a in xrange(0, count-1):
-    #     num += 1
-    #     sum += num
     sum = 0
 
     for a in xrange(lower, lower + count):
