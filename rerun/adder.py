@@ -40,7 +40,7 @@ try:
             # self.module_name = module_name
 
         class partializer():
-            part_size = 10000000
+            part_size = 100000000
 
             def __init__(self, upper):
                 self.upper = int(upper[0]) # need to cast this to int because "salt-call" does not
@@ -89,12 +89,12 @@ def sum_nums(upper):
 
     upper = int(upper)
     start = time.time()
-    num = 0
+
     sum = 0
 
-    while num < upper:
-        num += 1
-        sum += num
+    for a in xrange(0, upper):
+        sum += a
+
     print "sum = " + str(sum)
     return sum
 
@@ -113,12 +113,16 @@ def partial_result(lower, count):
     '''
     start_time, start_resources = timestamp(), resource_usage(RUSAGE_SELF)
     lower = int(lower)
-    num = lower
-    sum = num
+    # num = lower
+    # sum = num
+    #
+    # for a in xrange(0, count-1):
+    #     num += 1
+    #     sum += num
+    sum = 0
 
-    for a in xrange(0, count-1):
-        num += 1
-        sum += num
+    for a in xrange(lower, lower + count):
+        sum += a
 
     end_resources, end_time = resource_usage(RUSAGE_SELF), timestamp()
 
