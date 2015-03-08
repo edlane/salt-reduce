@@ -83,7 +83,7 @@ def sum_nums(upper):
 
     .. code-block:: bash
 
-        salt '*' mapit.sum_nums 10
+        salt '*' adder.sum_nums 10
 
     '''
 
@@ -108,7 +108,7 @@ def partial_result(lower, count):
 
     .. code-block:: bash
 
-        salt '*' mapit.sum_nums_partial 10 20
+        salt '*' adder.sum_nums_partial 10 20
 
     '''
     start_time, start_resources = timestamp(), resource_usage(RUSAGE_SELF)
