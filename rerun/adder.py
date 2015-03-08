@@ -73,8 +73,21 @@ except:
     pass
 
 
+def timeit(method):
 
-def sum_nums(upper):
+    def timed(*args, **kwargs):
+        start_time, start_resources = timestamp(), resource_usage(RUSAGE_SELF)
+        result = method(*args, **kwargs)
+        end_resources, end_time = resource_usage(RUSAGE_SELF), timestamp()
+        times = {'real': end_time - start_time,
+                 'sys': end_resources.ru_stime - start_resources.ru_stime,
+                 'user': end_resources.ru_utime - start_resources.ru_utime}
+        return result, times
+
+    return timed
+
+@timeit
+def sumit(upper, **kwargs):
     '''
     Return the sum of the sequence of numbers from 1 to [upper], and the
     time it took to compute in seconds. Useful for validating the mapreduce runner
@@ -83,13 +96,11 @@ def sum_nums(upper):
 
     .. code-block:: bash
 
-        salt '*' adder.sum_nums 10
+        salt '*' adder.sumit 10
 
     '''
 
     upper = int(upper)
-    start = time.time()
-
     sum = 0
 
     for a in xrange(0, upper):
@@ -99,7 +110,8 @@ def sum_nums(upper):
     return sum
 
 
-def partial_result(lower, count):
+@timeit
+def partial_result(lower, count, **kwargs):
     '''
     Return the sum of the sequence of numbers in the range [lower, lower+count], and the
     time it took to compute in seconds.
@@ -111,18 +123,10 @@ def partial_result(lower, count):
         salt '*' adder.sum_nums_partial 10 20
 
     '''
-    start_time, start_resources = timestamp(), resource_usage(RUSAGE_SELF)
     lower = int(lower)
     sum = 0
 
     for a in xrange(lower, lower + count):
         sum += a
 
-    end_resources, end_time = resource_usage(RUSAGE_SELF), timestamp()
-
-    return sum, {'real': end_time - start_time,
-                 'sys': end_resources.ru_stime - start_resources.ru_stime,
-                 'user': end_resources.ru_utime - start_resources.ru_utime}
-
-
-
+    return sum
