@@ -41,8 +41,7 @@ def rerun():
             #
             # to control the runner
             #
-            RERUN_IT = False
-                # ...don't rerun control commands
+            RERUN_IT = False  # ...don't rerun control commands
             REDUCER_CALLBACK = False    # don't callback results from control commands
             command = fun_args[0].lower()
             if command == 'abort':
