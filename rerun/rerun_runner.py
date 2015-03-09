@@ -132,8 +132,7 @@ def rerun():
                     ret = {'result': m.statit(), 'runner stats': runner_stats}
                     salt.output.display_output(ret, opts=__opts__)
 
-                    # exit(ret)
-                    exit()
+                    return(ret)
 
 def run(*args, **kwargs):
     global verbose
