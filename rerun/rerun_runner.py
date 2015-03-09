@@ -80,13 +80,13 @@ def rerun():
                         mod = getattr(mod, '_mapper')
                         # this module has a "_mapper" class so use it...
                         m = mod(fun_args[1])
-                        repeat = m.partializer(fun_args[2:])
+                        repeat = m.sharder(fun_args[2:])
                     except:
                         # not a map-reduce style module, so use base mapper class
                         m = mapper(fun_args[1])
-                        repeat = m.partializer(fun_args[2:])
+                        repeat = m.sharder(fun_args[2:])
                 # RERUN_IT = True
-                # # ...causes the initial "partializer" command to be run
+                # # ...causes the initial "sharder" command to be run
 
         if REDUCER_CALLBACK:
             # only callback the reducer if we got "real" results from a salt

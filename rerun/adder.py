@@ -39,7 +39,7 @@ try:
                 self.module_name = 'adder.partial_result'
             # self.module_name = module_name
 
-        class partializer():
+        class sharder():
             part_size = 100000000
 
             def __init__(self, upper):
@@ -85,6 +85,7 @@ def timeit(method):
         return result, times
 
     return timed
+
 
 @timeit
 def sumit(upper, **kwargs):
