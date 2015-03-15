@@ -9,7 +9,7 @@ class mapper:
     def __init__(self, module_name=None):
         self.module_name = module_name
 
-    def partializer(self, fun_args):
+    def sharder(self, fun_args):
         # return iter(xrange(0, limit))
         # return iter([ fun_args[0:]])
         # return iter([ fun_args for x in xrange(maxint)])
