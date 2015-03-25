@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-Module for demonstating salt-reduce
+Module for demonstrating salt-reduce
 '''
 
 # Import Python libs
